@@ -1,0 +1,28 @@
+# EditorConfig helps developers define and maintain consistent coding styles between different editors and IDEs.
+
+# Top-most EditorConfig file.
+root = true
+
+# Set the default charset to UTF-8.
+[*]
+charset = utf-8
+
+# Indentation settings for JavaScript files.
+[*.js]
+indent_style = tab
+tab_width = 4
+
+# Indentation settings for HTML files.
+[*.html]
+indent_style = tab
+tab_width = 4
+
+# Indentation settings for CSS files.
+[*.css]
+indent_style = tab
+tab_width = 4
+
+# End of line (EOL) settings.
+# Use LF (Unix-style) line endings.
+[*.{js,html,css}]
+end_of_line = lf
