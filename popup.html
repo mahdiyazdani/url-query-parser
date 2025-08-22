@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Query Parser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 450px;
+            min-height: 300px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            margin: 8px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        #urlInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+        }
+
+        #urlInput:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        #parseBtn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        #parseBtn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        #clearBtn {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        #clearBtn:hover {
+            background: #e5e7eb;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .results-title {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .param-count {
+            background: #ddd6fe;
+            color: #5b21b6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #fafbff;
+        }
+
+        .key-cell {
+            font-weight: 600;
+            color: #1e40af;
+            max-width: 120px;
+            word-break: break-word;
+        }
+
+        .value-cell {
+            color: #374151;
+            word-break: break-all;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+
+        .no-params {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .no-params-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .url-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .url-info strong {
+            color: #0369a1;
+        }
+
+        /* Scrollbar styling */
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        #urlInput::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #urlInput::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        #urlInput::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 URL Query Parser</h1>
+            <p>Parse and inspect URL query parameters</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <label for="urlInput">Enter URL:</label>
+                <div class="input-container">
+                    <textarea 
+                        id="urlInput" 
+                        placeholder="https://example.com/page?param1=value1&param2=value2&param3=value3"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+                <div class="button-container">
+                    <button id="parseBtn">Parse URL</button>
+                    <button id="clearBtn">Clear</button>
+                </div>
+            </div>
+
+            <div id="results" class="results" style="display: none;">
+                <div class="results-header">
+                    <span class="results-title">Query Parameters</span>
+                    <span id="paramCount" class="param-count">0 parameters</span>
+                </div>
+                
+                <div id="urlInfo" class="url-info" style="display: none;">
+                    <strong>Base URL:</strong> <span id="baseUrl"></span>
+                </div>
+                
+                <div class="table-container">
+                    <table id="paramsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Parameter</th>
+                                <th style="width: 70%;">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="error" class="error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
